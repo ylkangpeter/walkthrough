@@ -4,6 +4,16 @@ import itertools
 from decimal import Decimal
 
 
+#
+# <:    X/10
+# +:    -X
+# +8:   X+8
+# -8:   X=8, so does * and /
+# 1=>2: replace all 1 with 2
+# r:    123 -> 321
+# 1:    123 -> 123'1'
+# [ +3: add up to the operators. e.g: operators *3, +5, -3 with '[ +3' become *6, +8, -0
+#
 def gen(condition, steps):
     counter = 0
 
@@ -59,14 +69,18 @@ def doBinaryMath(initVal, operation):
         elif sign == "/":
             t = initVal / Decimal(operation[1:])
         elif sign == "r":
-            t = Decimal(str(initVal)[::-1])
+            if initVal < 0:
+                t = -Decimal(str(-initVal)[::-1])
+            else:
+                t = Decimal(str(initVal)[::-1])
         elif sign == "<":
             t = int(initVal / 10)
         else:
+            size = len(str(operation))
             if initVal >= 0:
-                t = initVal * 10 + Decimal(operation)
+                t = initVal * pow(10, size) + Decimal(operation)
             else:
-                t = initVal * 10 - Decimal(operation)
+                t = initVal * pow(10, size) - Decimal(operation)
     return t
 
 
@@ -86,8 +100,8 @@ def calc(combinations, result, initVal):
                 v = tmps[j].split(" ")
                 for m in xrange(0, len(tmps)):
                     tmps[m] = decorate(tmps[m], v[0][1], v[1]);
-                else:
-                    val = doBinaryMath(val, tmps[j])
+            else:
+                val = doBinaryMath(val, tmps[j])
         # print "%s %d" % (combinations[i], val)
         if val == result:
             print "result: %s" % str(combinations[i])
@@ -106,9 +120,9 @@ def decorate(raw, oper, addup):
 
 
 initVal = 0
-condition = ['+2', '1', '[+ 3']
+condition = ['-5', '+7', 'r', '-9']
 steps = 5
-result = 28
+result = -43
 
 combinations = gen(condition, steps)
 # print combinations
